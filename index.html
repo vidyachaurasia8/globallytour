@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Global Travel Planner</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#121a2b; --muted:#92a1b7; --text:#eaf2ff; --brand:#6aa6ff; --accent:#71f3c8; --danger:#ff7675;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(120deg,#0b1220,#0f1730 40%,#0b1220);color:var(--text)}
+    header{position:sticky;top:0;z-index:5;background:rgba(11,18,32,.8);backdrop-filter:blur(10px);border-bottom:1px solid #1c2944}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+    .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--accent));display:inline-block}
+    .searchbar{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr)) auto;gap:8px}
+    input,select,button,textarea{border:1px solid #283553;background:#0f1628;color:var(--text);padding:10px;border-radius:12px}
+    button{cursor:pointer;font-weight:600}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),#7dc8ff);border:none;color:#071222}
+    .btn-ghost{background:#0f1628}
+    main{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:20px}
+    aside{background:var(--panel);border:1px solid #1c2944;border-radius:16px;padding:14px;height:fit-content;position:sticky;top:84px}
+    .card{background:var(--panel);border:1px solid #1c2944;border-radius:16px;padding:14px}
+    .grid{display:grid;gap:12px}
+    .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .hotel{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;background:#0e1627;border:1px solid #203050;border-radius:16px;padding:10px}
+    .thumb{width:120px;height:90px;border-radius:12px;background:linear-gradient(135deg,#2a3a5f,#1f2b46)}
+    .tag{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #2b3b5f;color:#cfe2ff;margin-right:6px;margin-bottom:6px;font-size:12px}
+    .muted{color:var(--muted)}
+    .tabs{display:flex;gap:8px;border-bottom:1px solid #1c2944;margin-bottom:10px}
+    .tab{padding:10px 12px;border-radius:999px}
+    .tab.active{background:#0f1628;border:1px solid #1c2944}
+    .results{min-height:200px}
+    .pill{border:1px dashed #29406b;border-radius:999px;padding:6px 10px;font-size:12px}
+    .footer{padding:24px;text-align:center;color:#9fb2d1}
+    .map{height:220px;border-radius:14px;background:repeating-linear-gradient(45deg,#101a30,#101a30 10px,#0c1426 10px,#0c1426 20px);display:flex;align-items:center;justify-content:center;color:#7aa0ff;border:1px solid #213356}
+    @media(max-width:980px){main{grid-template-columns:1fr}} 
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap row" style="align-items:center;justify-content:space-between">
+      <div class="brand"><span class="logo"></span> Global Travel Planner</div>
+      <nav class="row">
+        <a class="pill" href="#explore">Explore</a>
+        <a class="pill" href="#hotels">Hotels</a>
+        <a class="pill" href="#routes">Routes</a>
+        <a class="pill" href="#itinerary">Itinerary</a>
+      </nav>
+    </div>
+    <div class="wrap" style="padding-top:0">
+      <div class="searchbar" id="mainSearch">
+        <input id="qFrom" placeholder="From city (e.g., Delhi)" />
+        <input id="qTo" placeholder="To city (e.g., Mumbai)" />
+        <input id="qIn" type="date"/>
+        <input id="qOut" type="date"/>
+        <select id="qGuests"><option value="1">1 guest</option><option>2 guests</option><option>3 guests</option><option>4 guests</option><option>5+ guests</option></select>
+        <button class="btn-primary" id="btnSearch">Search</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <aside>
+      <h3 style="margin:0 0 8px">Filters</h3>
+      <div class="grid">
+        <label class="muted">Country
+          <select id="fCountry"></select>
+        </label>
+        <label class="muted">City/Area
+          <select id="fCity"></select>
+        </label>
+        <label class="muted">Max price / night (USD)
+          <input type="number" id="fPrice" placeholder="e.g., 120" />
+        </label>
+        <label class="muted">Cuisine
+          <select id="fCuisine"></select>
+        </label>
+        <button class="btn-ghost" id="btnReset">Reset Filters</button>
+      </div>
+    </aside>
+
+    <section>
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" data-tab="explore">Explore</button>
+          <button class="tab" data-tab="hotels">Hotels</button>
+          <button class="tab" data-tab="routes">Routes</button>
+          <button class="tab" data-tab="itinerary">Itinerary</button>
+        </div>
+
+        <!-- Explore Tab -->
+        <div class="tabpanel" id="tab-explore">
+          <div class="grid cols-3" id="destinations"></div>
+        </div>
+
+        <!-- Hotels Tab -->
+        <div class="tabpanel" id="tab-hotels" style="display:none">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div><span class="muted" id="hotelCount">0</span> results</div>
+            <div class="row">
+              <label class="muted">Sort
+                <select id="sortHotels">
+                  <option value="rating">Rating</option>
+                  <option value="price">Price (low→high)</option>
+                  <option value="name">Name (A→Z)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="grid" id="hotels"></div>
+        </div>
+
+        <!-- Routes Tab -->
+        <div class="tabpanel" id="tab-routes" style="display:none">
+          <div class="grid cols-2">
+            <div>
+              <label class="muted">From
+                <select id="rFrom"></select>
+              </label>
+              <label class="muted">To
+                <select id="rTo"></select>
+              </label>
+              <button class="btn-primary" id="btnDistance">Calculate Distance</button>
+              <div style="margin-top:10px" id="routeResult" class="muted">—</div>
+              <div class="map" id="mapBox">Map preview (placeholder)</div>
+            </div>
+            <div>
+              <h4 style="margin:0 0 8px">Saved Itinerary</h4>
+              <div id="itineraryList" class="grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Itinerary Tab -->
+        <div class="tabpanel" id="tab-itinerary" style="display:none">
+          <div id="itineraryMain" class="grid"></div>
+          <button class="btn-ghost" id="btnClearItinerary">Clear Itinerary</button>
+        </div>
+      </div>
+
+      <div class="footer">⚠️ Demo data only. Wire this to real APIs later.</div>
+    </section>
+  </main>
+
+  <!-- Hotel Details Modal -->
+  <dialog id="hotelModal" style="border:none;border-radius:16px;padding:0;background:#0b1220;color:var(--text);width:min(720px,96vw)">
+    <div class="card" style="border:none">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 id="mName" style="margin:0"></h3>
+        <button class="btn-ghost" onclick="hotelModal.close()">✖</button>
+      </div>
+      <div class="muted" id="mLocation"></div>
+      <div class="row" style="margin:10px 0"><span id="mRating" class="pill"></span><span id="mPrice" class="pill"></span></div>
+      <div class="grid cols-2">
+        <div>
+          <div class="thumb" id="mThumb" style="height:160px"></div>
+          <button class="btn-primary" id="mAdd">Add to Itinerary</button>
+        </div>
+        <div>
+          <h4>Menu Highlights</h4>
+          <div id="mMenu"></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+  // ---------------------------
+  // Demo Data (expand anytime)
+  // ---------------------------
+  const DATA = {
+    cities: [
+      { id:'DEL', city:'Delhi', country:'India', lat:28.6139, lon:77.2090 },
+      { id:'MUM', city:'Mumbai', country:'India', lat:19.0760, lon:72.8777 },
+      { id:'GOI', city:'Goa', country:'India', lat:15.2993, lon:74.1240 },
+      { id:'NYC', city:'New York', country:'USA', lat:40.7128, lon:-74.0060 },
+      { id:'LON', city:'London', country:'UK', lat:51.5074, lon:-0.1278 },
+      { id:'TYO', city:'Tokyo', country:'Japan', lat:35.6762, lon:139.6503 },
+    ],
+    hotels: [
+      { id:'H001', name:'Lotus Residency', city:'Delhi', country:'India', price:58, rating:4.3, cuisines:['North Indian','Chinese'], menu:[['Paneer Tikka',6],['Butter Chicken',8],['Fried Rice',5]] },
+      { id:'H002', name:'Marine Bay Hotel', city:'Mumbai', country:'India', price:92, rating:4.6, cuisines:['Seafood','Goan'], menu:[['Fish Curry',9],['Prawn Balchao',11],['Bebinca',4]] },
+      { id:'H003', name:'Calangute Sands', city:'Goa', country:'India', price:75, rating:4.4, cuisines:['Goan','Continental'], menu:[['Vindaloo',8],['Xacuti',9],['Pastel de Nata',5]] },
+      { id:'H004', name:'Hudson Central', city:'New York', country:'USA', price:160, rating:4.7, cuisines:['American','Italian'], menu:[['NY Strip',22],['Margherita Pizza',13],['Caesar Salad',9]] },
+      { id:'H005', name:'Thames View Lodge', city:'London', country:'UK', price:140, rating:4.5, cuisines:['British','Indian'], menu:[['Fish & Chips',12],['Chicken Tikka',11],['Scones',6]] },
+      { id:'H006', name:'Shinjuku Garden Inn', city:'Tokyo', country:'Japan', price:130, rating:4.8, cuisines:['Japanese'], menu:[['Ramen',9],['Sushi Set',18],['Tempura',12]] }
+    ]
+  };
+
+  // ---------------------------
+  // Helpers
+  // ---------------------------
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const formatUSD = n => `$${n.toFixed(0)}`;
+
+  function haversineDistance(lat1, lon1, lat2, lon2){
+    // returns km
+    const R = 6371; // km
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(lat2-lat1);
+    const dLon = toRad(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  // ---------------------------
+  // Populate filters and selects
+  // ---------------------------
+  function initFilters(){
+    const countries = [...new Set(DATA.cities.map(c=>c.country))].sort();
+    const cuisines = [...new Set(DATA.hotels.flatMap(h=>h.cuisines))].sort();
+
+    $('#fCountry').innerHTML = `<option value="">All</option>` + countries.map(c=>`<option>${c}</option>`).join('');
+    updateCityFilter();
+
+    $('#fCuisine').innerHTML = `<option value="">All</option>` + cuisines.map(c=>`<option>${c}</option>`).join('');
+
+    // Routes selects
+    const cityOpts = DATA.cities.map(c=>`<option value="${c.id}">${c.city}, ${c.country}</option>`).join('');
+    $('#rFrom').innerHTML = cityOpts;
+    $('#rTo').innerHTML = cityOpts;
+  }
+
+  function updateCityFilter(){
+    const country = $('#fCountry').value;
+    const cities = DATA.cities.filter(c=>!country || c.country===country).map(c=>c.city);
+    $('#fCity').innerHTML = `<option value="">All</option>` + [...new Set(cities)].sort().map(c=>`<option>${c}</option>`).join('');
+  }
+
+  // ---------------------------
+  // Explore cards
+  // ---------------------------
+  function renderExplore(){
+    const box = $('#destinations');
+    box.innerHTML = '';
+    const byCountry = {};
+    for(const c of DATA.cities){
+      byCountry[c.country] ||= [];
+      byCountry[c.country].push(c);
+    }
+    for(const [country, arr] of Object.entries(byCountry)){
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `<h3 style="margin:0 0 8px">${country}</h3>`+
+        `<div class="grid cols-3">`+
+        arr.map(ci=>`<div class="hotel" style="grid-template-columns:80px 1fr">
+          <div class="thumb"></div>
+          <div>
+            <div><strong>${ci.city}</strong></div>
+            <div class="muted">Lat ${ci.lat.toFixed(2)}, Lon ${ci.lon.toFixed(2)}</div>
+            <button class="btn-ghost" data-city="${ci.city}" data-country="${country}">View hotels</button>
+          </div>
+        </div>`).join('')+
+        `</div>`;
+      box.appendChild(el);
+    }
+
+    box.addEventListener('click', e=>{
+      if(e.target.matches('[data-city]')){
+        const city = e.target.getAttribute('data-city');
+        const country = e.target.getAttribute('data-country');
+        $('#fCountry').value = country; updateCityFilter();
+        $('#fCity').value = city; renderHotels(); switchTab('hotels');
+      }
+    });
+  }
+
+  // ---------------------------
+  // Hotels list + modal
+  // ---------------------------
+  function getFilteredHotels(){
+    const country = $('#fCountry').value; const city = $('#fCity').value; const maxPrice = parseFloat($('#fPrice').value)||Infinity; const cuisine = $('#fCuisine').value;
+    return DATA.hotels.filter(h=>
+      (!country || h.country===country) &&
+      (!city || h.city===city) &&
+      (h.price <= maxPrice) &&
+      (!cuisine || h.cuisines.includes(cuisine))
+    );
+  }
+
+  function renderHotels(){
+    const sortBy = $('#sortHotels').value;
+    const list = getFilteredHotels().sort((a,b)=>{
+      if(sortBy==='price') return a.price-b.price;
+      if(sortBy==='name') return a.name.localeCompare(b.name);
+      return b.rating-a.rating;
+    });
+
+    $('#hotelCount').textContent = list.length;
+    const box = $('#hotels');
+    box.innerHTML = '';
+    for(const h of list){
+      const el = document.createElement('div');
+      el.className = 'hotel';
+      el.innerHTML = `
+        <div class="thumb"></div>
+        <div>
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div>
+              <strong>${h.name}</strong>
+              <div class="muted">${h.city}, ${h.country}</div>
+            </div>
+            <div>
+              <span class="tag">${formatUSD(h.price)}/night</span>
+              <span class="tag">★ ${h.rating}</span>
+            </div>
+          </div>
+          <div style="margin-top:6px">${h.cuisines.map(c=>`<span class="tag">${c}</span>`).join('')}</div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn-primary" data-open="${h.id}">View details</button>
+            <button class="btn-ghost" data-add="${h.id}">Add to itinerary</button>
+          </div>
+        </div>`;
+      box.appendChild(el);
+    }
+  }
+
+  function openHotelModal(id){
+    const h = DATA.hotels.find(x=>x.id===id);
+    if(!h) return;
+    $('#mName').textContent = h.name;
+    $('#mLocation').textContent = `${h.city}, ${h.country}`;
+    $('#mRating').textContent = `★ ${h.rating}`;
+    $('#mPrice').textContent = `${formatUSD(h.price)}/night`;
+    $('#mMenu').innerHTML = h.menu.map(([dish,price])=>`<div class="row" style="justify-content:space-between"><span>${dish}</span><span class="muted">${formatUSD(price)}</span></div>`).join('');
+    $('#mThumb').style.background = 'linear-gradient(135deg,#264170,#1b2d4f)';
+    $('#mAdd').onclick = ()=>{ addToItinerary({type:'hotel', ref:h.id, name:h.name, city:h.city, country:h.country, price:h.price}); hotelModal.close(); };
+    hotelModal.showModal();
+  }
+
+  // ---------------------------
+  // Routes & distance
+  // ---------------------------
+  function calcDistance(){
+    const a = DATA.cities.find(c=>c.id === $('#rFrom').value);
+    const b = DATA.cities.find(c=>c.id === $('#rTo').value);
+    if(!a || !b) return;
+    const km = haversineDistance(a.lat,a.lon,b.lat,b.lon);
+    const byAir = km.toFixed(0);
+    const byRoad = (km*1.2).toFixed(0); // rough factor for demo
+    $('#routeResult').innerHTML = `<strong>${a.city}</strong> → <strong>${b.city}</strong><br>`+
+      `${byAir} km (as the crow flies) · ~${byRoad} km by road (estimate)`;
+    $('#mapBox').textContent = `${a.city} ↔ ${b.city} (preview)`;
+  }
+
+  // ---------------------------
+  // Itinerary (localStorage)
+  // ---------------------------
+  const STORE_KEY = 'gtp_itinerary_v1';
+
+  function getItinerary(){
+    try{ return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }catch{ return [] }
+  }
+  function saveItinerary(arr){ localStorage.setItem(STORE_KEY, JSON.stringify(arr)); renderItinerary(); }
+  function addToItinerary(item){ const arr = getItinerary(); arr.push({...item, id:Date.now()}); saveItinerary(arr); }
+  function removeFromItinerary(id){ const arr = getItinerary().filter(x=>x.id!==id); saveItinerary(arr); }
+  function clearItinerary(){ saveItinerary([]); }
+
+  function renderItinerary(){
+    const arr = getItinerary();
+    const boxA = $('#itineraryList');
+    const boxB = $('#itineraryMain');
+    if(boxA) boxA.innerHTML = '';
+    if(boxB) boxB.innerHTML = '';
+
+    const makeCard = (x)=>{
+      const div = document.createElement('div');
+      div.className = 'hotel';
+      div.innerHTML = `<div class="thumb"></div><div><div><strong>${x.name}</strong></div><div class="muted">${x.city}, ${x.country}</div><div class="row" style="margin-top:6px"><span class="tag">${x.type}</span><span class="tag">${formatUSD(x.price)}${x.type==='hotel'?'/night':''}</span></div><button class="btn-ghost" data-remove="${x.id}">Remove</button></div>`;
+      return div;
+    };
+
+    for(const x of arr){
+      if(boxA) boxA.appendChild(makeCard(x));
+      if(boxB) boxB.appendChild(makeCard(x));
+    }
+
+    $$('#itineraryList [data-remove], #itineraryMain [data-remove]').forEach(btn=>{
+      btn.onclick = ()=> removeFromItinerary(parseInt(btn.getAttribute('data-remove')));
+    });
+  }
+
+  // ---------------------------
+  // Tabs & events
+  // ---------------------------
+  function switchTab(name){
+    $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+    $$('.tabpanel').forEach(p=>p.style.display = p.id === `tab-${name}` ? '' : 'none');
+    if(name==='hotels') renderHotels();
+    if(name==='routes') renderItinerary();
+    if(name==='itinerary') renderItinerary();
+  }
+
+  function wireEvents(){
+    // Tabs
+    $$('.tab').forEach(t=> t.onclick = ()=> switchTab(t.dataset.tab));
+
+    // Filters
+    $('#fCountry').onchange = ()=>{ updateCityFilter(); renderHotels(); };
+    $('#fCity').onchange = renderHotels;
+    $('#fPrice').oninput = renderHotels;
+    $('#fCuisine').onchange = renderHotels;
+    $('#sortHotels').onchange = renderHotels;
+    $('#btnReset').onclick = ()=>{ $('#fCountry').value=''; updateCityFilter(); $('#fCity').value=''; $('#fPrice').value=''; $('#fCuisine').value=''; renderHotels(); };
+
+    // Hotels actions (delegate)
+    $('#hotels').addEventListener('click', e=>{
+      const idOpen = e.target.getAttribute('data-open');
+      const idAdd = e.target.getAttribute('data-add');
+      if(idOpen) openHotelModal(idOpen);
+      if(idAdd){ const h = DATA.hotels.find(x=>x.id===idAdd); if(h) addToItinerary({type:'hotel', ref:h.id, name:h.name, city:h.city, country:h.country, price:h.price}); }
+    });
+
+    // Explore → view hotels
+    // handled in renderExplore()
+
+    // Routes
+    $('#btnDistance').onclick = calcDistance;
+
+    // Global search button (demo: just jump to Hotels)
+    $('#btnSearch').onclick = ()=>{ switchTab('hotels'); };
+
+    // Itinerary
+    $('#btnClearItinerary').onclick = clearItinerary;
+  }
+
+  // ---------------------------
+  // Init
+  // ---------------------------
+  initFilters();
+  renderExplore();
+  renderHotels();
+  renderItinerary();
+  wireEvents();
+  </script>
+</body>
+</html>
