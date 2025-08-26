@@ -1,443 +1,648 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Global Travel Planner</title>
-  <style>
-    :root{
-      --bg:#0b1220; --panel:#121a2b; --muted:#92a1b7; --text:#eaf2ff; --brand:#6aa6ff; --accent:#71f3c8; --danger:#ff7675;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(120deg,#0b1220,#0f1730 40%,#0b1220);color:var(--text)}
-    header{position:sticky;top:0;z-index:5;background:rgba(11,18,32,.8);backdrop-filter:blur(10px);border-bottom:1px solid #1c2944}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
-    .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--accent));display:inline-block}
-    .searchbar{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr)) auto;gap:8px}
-    input,select,button,textarea{border:1px solid #283553;background:#0f1628;color:var(--text);padding:10px;border-radius:12px}
-    button{cursor:pointer;font-weight:600}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),#7dc8ff);border:none;color:#071222}
-    .btn-ghost{background:#0f1628}
-    main{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:20px}
-    aside{background:var(--panel);border:1px solid #1c2944;border-radius:16px;padding:14px;height:fit-content;position:sticky;top:84px}
-    .card{background:var(--panel);border:1px solid #1c2944;border-radius:16px;padding:14px}
-    .grid{display:grid;gap:12px}
-    .grid.cols-2{grid-template-columns:repeat(2,1fr)}
-    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-    .hotel{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;background:#0e1627;border:1px solid #203050;border-radius:16px;padding:10px}
-    .thumb{width:120px;height:90px;border-radius:12px;background:linear-gradient(135deg,#2a3a5f,#1f2b46)}
-    .tag{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #2b3b5f;color:#cfe2ff;margin-right:6px;margin-bottom:6px;font-size:12px}
-    .muted{color:var(--muted)}
-    .tabs{display:flex;gap:8px;border-bottom:1px solid #1c2944;margin-bottom:10px}
-    .tab{padding:10px 12px;border-radius:999px}
-    .tab.active{background:#0f1628;border:1px solid #1c2944}
-    .results{min-height:200px}
-    .pill{border:1px dashed #29406b;border-radius:999px;padding:6px 10px;font-size:12px}
-    .footer{padding:24px;text-align:center;color:#9fb2d1}
-    .map{height:220px;border-radius:14px;background:repeating-linear-gradient(45deg,#101a30,#101a30 10px,#0c1426 10px,#0c1426 20px);display:flex;align-items:center;justify-content:center;color:#7aa0ff;border:1px solid #213356}
-    @media(max-width:980px){main{grid-template-columns:1fr}} 
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Travel Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section-title {
+            margin: 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #27ae60;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #c0392b;
+        }
+
+        .destinations {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .destination-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .destination-img {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .destination-info {
+            padding: 15px;
+        }
+
+        .destination-info h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .destination-info p {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .hotels {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .hotel-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .hotel-img {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hotel-info {
+            padding: 15px;
+        }
+
+        .hotel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .hotel-header h3 {
+            color: var(--dark);
+        }
+
+        .rating {
+            background: var(--secondary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .price {
+            color: var(--primary);
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .cuisine {
+            display: inline-block;
+            background: #eee;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .distance-calc {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .calc-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .result-box {
+            background: #e8f4fc;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-box h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .distance-result {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .itinerary {
+            margin-top: 30px;
+        }
+
+        .itinerary-items {
+            margin-top: 20px;
+        }
+
+        .itinerary-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .item-info h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .item-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .distance-calc {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="wrap row" style="align-items:center;justify-content:space-between">
-      <div class="brand"><span class="logo"></span> Global Travel Planner</div>
-      <nav class="row">
-        <a class="pill" href="#explore">Explore</a>
-        <a class="pill" href="#hotels">Hotels</a>
-        <a class="pill" href="#routes">Routes</a>
-        <a class="pill" href="#itinerary">Itinerary</a>
-      </nav>
+    <header>
+        <div class="logo">
+            <i class="fas fa-globe-americas"></i>
+            <h1>Global Travel Planner</h1>
+        </div>
+        <p>Plan your dream vacation with ease</p>
+    </header>
+
+    <div class="container">
+        <!-- Explore Destinations Section -->
+        <section class="destinations-section">
+            <h2 class="section-title">Explore Destinations</h2>
+            <div class="card">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="country-select">Select Country</label>
+                        <select id="country-select">
+                            <option value="">All Countries</option>
+                            <option value="france">France</option>
+                            <option value="italy">Italy</option>
+                            <option value="japan">Japan</option>
+                            <option value="usa">United States</option>
+                            <option value="thailand">Thailand</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="city-select">Select City</label>
+                        <select id="city-select">
+                            <option value="">All Cities</option>
+                            <option value="paris">Paris</option>
+                            <option value="rome">Rome</option>
+                            <option value="tokyo">Tokyo</option>
+                            <option value="newyork">New York</option>
+                            <option value="bangkok">Bangkok</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+
+                <div class="destinations">
+                    <div class="destination-card">
+                        <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1502602898536-47ad22581b52?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="destination-info">
+                            <h3>Paris, France</h3>
+                            <p>The City of Light known for its art, fashion, and culture.</p>
+                            <button class="btn btn-primary">Explore</button>
+                        </div>
+                    </div>
+
+                    <div class="destination-card">
+                        <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1552832230-c0197043a4d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="destination-info">
+                            <h3>Rome, Italy</h3>
+                            <p>The Eternal City with incredible history and cuisine.</p>
+                            <button class="btn btn-primary">Explore</button>
+                        </div>
+                    </div>
+
+                    <div class="destination-card">
+                        <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="destination-info">
+                            <h3>Tokyo, Japan</h3>
+                            <p>A bustling metropolis blending tradition and innovation.</p>
+                            <button class="btn btn-primary">Explore</button>
+                        </div>
+                    </div>
+
+                    <div class="destination-card">
+                        <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1500916434205-0c77489c6cf7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="destination-info">
+                            <h3>New York, USA</h3>
+                            <p>The city that never sleeps with iconic landmarks.</p>
+                            <button class="btn btn-primary">Explore</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hotels Section -->
+        <section class="hotels-section">
+            <h2 class="section-title">Find Hotels</h2>
+            <div class="card">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="price-range">Price Range</label>
+                        <select id="price-range">
+                            <option value="">Any Price</option>
+                            <option value="budget">Budget ($)</option>
+                            <option value="mid">Mid-range ($$)</option>
+                            <option value="luxury">Luxury ($$$)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="hotel-rating">Rating</label>
+                        <select id="hotel-rating">
+                            <option value="">Any Rating</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="cuisine-type">Cuisine</label>
+                        <select id="cuisine-type">
+                            <option value="">Any Cuisine</option>
+                            <option value="local">Local</option>
+                            <option value="international">International</option>
+                            <option value="asian">Asian</option>
+                            <option value="european">European</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-secondary">Filter Hotels</button>
+                    </div>
+                </div>
+
+                <div class="hotels">
+                    <div class="hotel-card">
+                        <div class="hotel-img" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="hotel-info">
+                            <div class="hotel-header">
+                                <h3>Grand Plaza Hotel</h3>
+                                <div class="rating">4.8</div>
+                            </div>
+                            <p class="price">$120 / night</p>
+                            <div>
+                                <span class="cuisine">Local</span>
+                                <span class="cuisine">International</span>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top: 15px;">View Menu & Details</button>
+                            <button class="btn btn-primary" style="margin-top: 10px;">Add to Itinerary</button>
+                        </div>
+                    </div>
+
+                    <div class="hotel-card">
+                        <div class="hotel-img" style="background-image: url('https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="hotel-info">
+                            <div class="hotel-header">
+                                <h3>Seaside Resort</h3>
+                                <div class="rating">4.5</div>
+                            </div>
+                            <p class="price">$200 / night</p>
+                            <div>
+                                <span class="cuisine">Seafood</span>
+                                <span class="cuisine">Asian</span>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top: 15px;">View Menu & Details</button>
+                            <button class="btn btn-primary" style="margin-top: 10px;">Add to Itinerary</button>
+                        </div>
+                    </div>
+
+                    <div class="hotel-card">
+                        <div class="hotel-img" style="background-image: url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+                        <div class="hotel-info">
+                            <div class="hotel-header">
+                                <h3>Mountain Retreat</h3>
+                                <div class="rating">4.9</div>
+                            </div>
+                            <p class="price">$180 / night</p>
+                            <div>
+                                <span class="cuisine">Local</span>
+                                <span class="cuisine">European</span>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top: 15px;">View Menu & Details</button>
+                            <button class="btn btn-primary" style="margin-top: 10px;">Add to Itinerary</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Distance Calculator -->
+        <section class="distance-section">
+            <h2 class="section-title">Distance Calculator</h2>
+            <div class="card">
+                <div class="distance-calc">
+                    <div class="calc-form">
+                        <div class="filter-group">
+                            <label for="from-city">From City</label>
+                            <select id="from-city">
+                                <option value="">Select City</option>
+                                <option value="paris">Paris</option>
+                                <option value="rome">Rome</option>
+                                <option value="tokyo">Tokyo</option>
+                                <option value="newyork">New York</option>
+                                <option value="bangkok">Bangkok</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="to-city">To City</label>
+                            <select id="to-city">
+                                <option value="">Select City</option>
+                                <option value="paris">Paris</option>
+                                <option value="rome">Rome</option>
+                                <option value="tokyo">Tokyo</option>
+                                <option value="newyork">New York</option>
+                                <option value="bangkok">Bangkok</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="travel-mode">Travel Mode</label>
+                            <select id="travel-mode">
+                                <option value="air">Air</option>
+                                <option value="road">Road</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-accent">Calculate Distance</button>
+                    </div>
+                    <div class="result-box">
+                        <h3>Distance</h3>
+                        <div class="distance-result">0 km</div>
+                        <p>Estimated travel time: 0 hours</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Itinerary Section -->
+        <section class="itinerary-section">
+            <h2 class="section-title">My Travel Itinerary</h2>
+            <div class="card itinerary">
+                <p>Plan your trip by adding hotels and routes to your itinerary. Your selections will be saved automatically.</p>
+                
+                <div class="itinerary-items">
+                    <div class="itinerary-item">
+                        <div class="item-info">
+                            <h4>Grand Plaza Hotel</h4>
+                            <p>Paris, France | $120 per night</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-accent">Remove</button>
+                        </div>
+                    </div>
+                    
+                    <div class="itinerary-item">
+                        <div class="item-info">
+                            <h4>Paris to Rome</h4>
+                            <p>Air travel | 1100 km</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-accent">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary">Save Itinerary</button>
+                <button class="btn btn-secondary">Clear All</button>
+            </div>
+        </section>
     </div>
-    <div class="wrap" style="padding-top:0">
-      <div class="searchbar" id="mainSearch">
-        <input id="qFrom" placeholder="From city (e.g., Delhi)" />
-        <input id="qTo" placeholder="To city (e.g., Mumbai)" />
-        <input id="qIn" type="date"/>
-        <input id="qOut" type="date"/>
-        <select id="qGuests"><option value="1">1 guest</option><option>2 guests</option><option>3 guests</option><option>4 guests</option><option>5+ guests</option></select>
-        <button class="btn-primary" id="btnSearch">Search</button>
-      </div>
-    </div>
-  </header>
 
-  <main class="wrap">
-    <aside>
-      <h3 style="margin:0 0 8px">Filters</h3>
-      <div class="grid">
-        <label class="muted">Country
-          <select id="fCountry"></select>
-        </label>
-        <label class="muted">City/Area
-          <select id="fCity"></select>
-        </label>
-        <label class="muted">Max price / night (USD)
-          <input type="number" id="fPrice" placeholder="e.g., 120" />
-        </label>
-        <label class="muted">Cuisine
-          <select id="fCuisine"></select>
-        </label>
-        <button class="btn-ghost" id="btnReset">Reset Filters</button>
-      </div>
-    </aside>
+    <footer>
+        <p>Global Travel Planner &copy; 2023 | Plan your dream vacation with ease</p>
+        <p>In future, this application can be integrated with real-world APIs like Google Maps and hotel booking services.</p>
+    </footer>
 
-    <section>
-      <div class="card">
-        <div class="tabs">
-          <button class="tab active" data-tab="explore">Explore</button>
-          <button class="tab" data-tab="hotels">Hotels</button>
-          <button class="tab" data-tab="routes">Routes</button>
-          <button class="tab" data-tab="itinerary">Itinerary</button>
-        </div>
+    <script>
+        // Sample data for demonstration
+        const hotels = [
+            { id: 1, name: "Grand Plaza Hotel", price: 120, rating: 4.8, cuisine: ["Local", "International"], city: "paris" },
+            { id: 2, name: "Seaside Resort", price: 200, rating: 4.5, cuisine: ["Seafood", "Asian"], city: "tokyo" },
+            { id: 3, name: "Mountain Retreat", price: 180, rating: 4.9, cuisine: ["Local", "European"], city: "rome" }
+        ];
 
-        <!-- Explore Tab -->
-        <div class="tabpanel" id="tab-explore">
-          <div class="grid cols-3" id="destinations"></div>
-        </div>
+        const distances = {
+            "paris-rome": { air: 1100, road: 1420 },
+            "paris-tokyo": { air: 9710, road: 0 },
+            "paris-newyork": { air: 5830, road: 0 },
+            "rome-tokyo": { air: 10000, road: 0 },
+            "rome-newyork": { air: 6900, road: 0 },
+            "tokyo-newyork": { air: 10850, road: 0 }
+        };
 
-        <!-- Hotels Tab -->
-        <div class="tabpanel" id="tab-hotels" style="display:none">
-          <div class="row" style="justify-content:space-between;align-items:center">
-            <div><span class="muted" id="hotelCount">0</span> results</div>
-            <div class="row">
-              <label class="muted">Sort
-                <select id="sortHotels">
-                  <option value="rating">Rating</option>
-                  <option value="price">Price (low→high)</option>
-                  <option value="name">Name (A→Z)</option>
-                </select>
-              </label>
-            </div>
-          </div>
-          <div class="grid" id="hotels"></div>
-        </div>
-
-        <!-- Routes Tab -->
-        <div class="tabpanel" id="tab-routes" style="display:none">
-          <div class="grid cols-2">
-            <div>
-              <label class="muted">From
-                <select id="rFrom"></select>
-              </label>
-              <label class="muted">To
-                <select id="rTo"></select>
-              </label>
-              <button class="btn-primary" id="btnDistance">Calculate Distance</button>
-              <div style="margin-top:10px" id="routeResult" class="muted">—</div>
-              <div class="map" id="mapBox">Map preview (placeholder)</div>
-            </div>
-            <div>
-              <h4 style="margin:0 0 8px">Saved Itinerary</h4>
-              <div id="itineraryList" class="grid"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Itinerary Tab -->
-        <div class="tabpanel" id="tab-itinerary" style="display:none">
-          <div id="itineraryMain" class="grid"></div>
-          <button class="btn-ghost" id="btnClearItinerary">Clear Itinerary</button>
-        </div>
-      </div>
-
-      <div class="footer">⚠️ Demo data only. Wire this to real APIs later.</div>
-    </section>
-  </main>
-
-  <!-- Hotel Details Modal -->
-  <dialog id="hotelModal" style="border:none;border-radius:16px;padding:0;background:#0b1220;color:var(--text);width:min(720px,96vw)">
-    <div class="card" style="border:none">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <h3 id="mName" style="margin:0"></h3>
-        <button class="btn-ghost" onclick="hotelModal.close()">✖</button>
-      </div>
-      <div class="muted" id="mLocation"></div>
-      <div class="row" style="margin:10px 0"><span id="mRating" class="pill"></span><span id="mPrice" class="pill"></span></div>
-      <div class="grid cols-2">
-        <div>
-          <div class="thumb" id="mThumb" style="height:160px"></div>
-          <button class="btn-primary" id="mAdd">Add to Itinerary</button>
-        </div>
-        <div>
-          <h4>Menu Highlights</h4>
-          <div id="mMenu"></div>
-        </div>
-      </div>
-    </div>
-  </dialog>
-
-  <script>
-  // ---------------------------
-  // Demo Data (expand anytime)
-  // ---------------------------
-  const DATA = {
-    cities: [
-      { id:'DEL', city:'Delhi', country:'India', lat:28.6139, lon:77.2090 },
-      { id:'MUM', city:'Mumbai', country:'India', lat:19.0760, lon:72.8777 },
-      { id:'GOI', city:'Goa', country:'India', lat:15.2993, lon:74.1240 },
-      { id:'NYC', city:'New York', country:'USA', lat:40.7128, lon:-74.0060 },
-      { id:'LON', city:'London', country:'UK', lat:51.5074, lon:-0.1278 },
-      { id:'TYO', city:'Tokyo', country:'Japan', lat:35.6762, lon:139.6503 },
-    ],
-    hotels: [
-      { id:'H001', name:'Lotus Residency', city:'Delhi', country:'India', price:58, rating:4.3, cuisines:['North Indian','Chinese'], menu:[['Paneer Tikka',6],['Butter Chicken',8],['Fried Rice',5]] },
-      { id:'H002', name:'Marine Bay Hotel', city:'Mumbai', country:'India', price:92, rating:4.6, cuisines:['Seafood','Goan'], menu:[['Fish Curry',9],['Prawn Balchao',11],['Bebinca',4]] },
-      { id:'H003', name:'Calangute Sands', city:'Goa', country:'India', price:75, rating:4.4, cuisines:['Goan','Continental'], menu:[['Vindaloo',8],['Xacuti',9],['Pastel de Nata',5]] },
-      { id:'H004', name:'Hudson Central', city:'New York', country:'USA', price:160, rating:4.7, cuisines:['American','Italian'], menu:[['NY Strip',22],['Margherita Pizza',13],['Caesar Salad',9]] },
-      { id:'H005', name:'Thames View Lodge', city:'London', country:'UK', price:140, rating:4.5, cuisines:['British','Indian'], menu:[['Fish & Chips',12],['Chicken Tikka',11],['Scones',6]] },
-      { id:'H006', name:'Shinjuku Garden Inn', city:'Tokyo', country:'Japan', price:130, rating:4.8, cuisines:['Japanese'], menu:[['Ramen',9],['Sushi Set',18],['Tempura',12]] }
-    ]
-  };
-
-  // ---------------------------
-  // Helpers
-  // ---------------------------
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-  const formatUSD = n => `$${n.toFixed(0)}`;
-
-  function haversineDistance(lat1, lon1, lat2, lon2){
-    // returns km
-    const R = 6371; // km
-    const toRad = d => d * Math.PI / 180;
-    const dLat = toRad(lat2-lat1);
-    const dLon = toRad(lon2-lon1);
-    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }
-
-  // ---------------------------
-  // Populate filters and selects
-  // ---------------------------
-  function initFilters(){
-    const countries = [...new Set(DATA.cities.map(c=>c.country))].sort();
-    const cuisines = [...new Set(DATA.hotels.flatMap(h=>h.cuisines))].sort();
-
-    $('#fCountry').innerHTML = `<option value="">All</option>` + countries.map(c=>`<option>${c}</option>`).join('');
-    updateCityFilter();
-
-    $('#fCuisine').innerHTML = `<option value="">All</option>` + cuisines.map(c=>`<option>${c}</option>`).join('');
-
-    // Routes selects
-    const cityOpts = DATA.cities.map(c=>`<option value="${c.id}">${c.city}, ${c.country}</option>`).join('');
-    $('#rFrom').innerHTML = cityOpts;
-    $('#rTo').innerHTML = cityOpts;
-  }
-
-  function updateCityFilter(){
-    const country = $('#fCountry').value;
-    const cities = DATA.cities.filter(c=>!country || c.country===country).map(c=>c.city);
-    $('#fCity').innerHTML = `<option value="">All</option>` + [...new Set(cities)].sort().map(c=>`<option>${c}</option>`).join('');
-  }
-
-  // ---------------------------
-  // Explore cards
-  // ---------------------------
-  function renderExplore(){
-    const box = $('#destinations');
-    box.innerHTML = '';
-    const byCountry = {};
-    for(const c of DATA.cities){
-      byCountry[c.country] ||= [];
-      byCountry[c.country].push(c);
-    }
-    for(const [country, arr] of Object.entries(byCountry)){
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `<h3 style="margin:0 0 8px">${country}</h3>`+
-        `<div class="grid cols-3">`+
-        arr.map(ci=>`<div class="hotel" style="grid-template-columns:80px 1fr">
-          <div class="thumb"></div>
-          <div>
-            <div><strong>${ci.city}</strong></div>
-            <div class="muted">Lat ${ci.lat.toFixed(2)}, Lon ${ci.lon.toFixed(2)}</div>
-            <button class="btn-ghost" data-city="${ci.city}" data-country="${country}">View hotels</button>
-          </div>
-        </div>`).join('')+
-        `</div>`;
-      box.appendChild(el);
-    }
-
-    box.addEventListener('click', e=>{
-      if(e.target.matches('[data-city]')){
-        const city = e.target.getAttribute('data-city');
-        const country = e.target.getAttribute('data-country');
-        $('#fCountry').value = country; updateCityFilter();
-        $('#fCity').value = city; renderHotels(); switchTab('hotels');
-      }
-    });
-  }
-
-  // ---------------------------
-  // Hotels list + modal
-  // ---------------------------
-  function getFilteredHotels(){
-    const country = $('#fCountry').value; const city = $('#fCity').value; const maxPrice = parseFloat($('#fPrice').value)||Infinity; const cuisine = $('#fCuisine').value;
-    return DATA.hotels.filter(h=>
-      (!country || h.country===country) &&
-      (!city || h.city===city) &&
-      (h.price <= maxPrice) &&
-      (!cuisine || h.cuisines.includes(cuisine))
-    );
-  }
-
-  function renderHotels(){
-    const sortBy = $('#sortHotels').value;
-    const list = getFilteredHotels().sort((a,b)=>{
-      if(sortBy==='price') return a.price-b.price;
-      if(sortBy==='name') return a.name.localeCompare(b.name);
-      return b.rating-a.rating;
-    });
-
-    $('#hotelCount').textContent = list.length;
-    const box = $('#hotels');
-    box.innerHTML = '';
-    for(const h of list){
-      const el = document.createElement('div');
-      el.className = 'hotel';
-      el.innerHTML = `
-        <div class="thumb"></div>
-        <div>
-          <div class="row" style="justify-content:space-between;align-items:center">
-            <div>
-              <strong>${h.name}</strong>
-              <div class="muted">${h.city}, ${h.country}</div>
-            </div>
-            <div>
-              <span class="tag">${formatUSD(h.price)}/night</span>
-              <span class="tag">★ ${h.rating}</span>
-            </div>
-          </div>
-          <div style="margin-top:6px">${h.cuisines.map(c=>`<span class="tag">${c}</span>`).join('')}</div>
-          <div class="row" style="margin-top:8px">
-            <button class="btn-primary" data-open="${h.id}">View details</button>
-            <button class="btn-ghost" data-add="${h.id}">Add to itinerary</button>
-          </div>
-        </div>`;
-      box.appendChild(el);
-    }
-  }
-
-  function openHotelModal(id){
-    const h = DATA.hotels.find(x=>x.id===id);
-    if(!h) return;
-    $('#mName').textContent = h.name;
-    $('#mLocation').textContent = `${h.city}, ${h.country}`;
-    $('#mRating').textContent = `★ ${h.rating}`;
-    $('#mPrice').textContent = `${formatUSD(h.price)}/night`;
-    $('#mMenu').innerHTML = h.menu.map(([dish,price])=>`<div class="row" style="justify-content:space-between"><span>${dish}</span><span class="muted">${formatUSD(price)}</span></div>`).join('');
-    $('#mThumb').style.background = 'linear-gradient(135deg,#264170,#1b2d4f)';
-    $('#mAdd').onclick = ()=>{ addToItinerary({type:'hotel', ref:h.id, name:h.name, city:h.city, country:h.country, price:h.price}); hotelModal.close(); };
-    hotelModal.showModal();
-  }
-
-  // ---------------------------
-  // Routes & distance
-  // ---------------------------
-  function calcDistance(){
-    const a = DATA.cities.find(c=>c.id === $('#rFrom').value);
-    const b = DATA.cities.find(c=>c.id === $('#rTo').value);
-    if(!a || !b) return;
-    const km = haversineDistance(a.lat,a.lon,b.lat,b.lon);
-    const byAir = km.toFixed(0);
-    const byRoad = (km*1.2).toFixed(0); // rough factor for demo
-    $('#routeResult').innerHTML = `<strong>${a.city}</strong> → <strong>${b.city}</strong><br>`+
-      `${byAir} km (as the crow flies) · ~${byRoad} km by road (estimate)`;
-    $('#mapBox').textContent = `${a.city} ↔ ${b.city} (preview)`;
-  }
-
-  // ---------------------------
-  // Itinerary (localStorage)
-  // ---------------------------
-  const STORE_KEY = 'gtp_itinerary_v1';
-
-  function getItinerary(){
-    try{ return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }catch{ return [] }
-  }
-  function saveItinerary(arr){ localStorage.setItem(STORE_KEY, JSON.stringify(arr)); renderItinerary(); }
-  function addToItinerary(item){ const arr = getItinerary(); arr.push({...item, id:Date.now()}); saveItinerary(arr); }
-  function removeFromItinerary(id){ const arr = getItinerary().filter(x=>x.id!==id); saveItinerary(arr); }
-  function clearItinerary(){ saveItinerary([]); }
-
-  function renderItinerary(){
-    const arr = getItinerary();
-    const boxA = $('#itineraryList');
-    const boxB = $('#itineraryMain');
-    if(boxA) boxA.innerHTML = '';
-    if(boxB) boxB.innerHTML = '';
-
-    const makeCard = (x)=>{
-      const div = document.createElement('div');
-      div.className = 'hotel';
-      div.innerHTML = `<div class="thumb"></div><div><div><strong>${x.name}</strong></div><div class="muted">${x.city}, ${x.country}</div><div class="row" style="margin-top:6px"><span class="tag">${x.type}</span><span class="tag">${formatUSD(x.price)}${x.type==='hotel'?'/night':''}</span></div><button class="btn-ghost" data-remove="${x.id}">Remove</button></div>`;
-      return div;
-    };
-
-    for(const x of arr){
-      if(boxA) boxA.appendChild(makeCard(x));
-      if(boxB) boxB.appendChild(makeCard(x));
-    }
-
-    $$('#itineraryList [data-remove], #itineraryMain [data-remove]').forEach(btn=>{
-      btn.onclick = ()=> removeFromItinerary(parseInt(btn.getAttribute('data-remove')));
-    });
-  }
-
-  // ---------------------------
-  // Tabs & events
-  // ---------------------------
-  function switchTab(name){
-    $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-    $$('.tabpanel').forEach(p=>p.style.display = p.id === `tab-${name}` ? '' : 'none');
-    if(name==='hotels') renderHotels();
-    if(name==='routes') renderItinerary();
-    if(name==='itinerary') renderItinerary();
-  }
-
-  function wireEvents(){
-    // Tabs
-    $$('.tab').forEach(t=> t.onclick = ()=> switchTab(t.dataset.tab));
-
-    // Filters
-    $('#fCountry').onchange = ()=>{ updateCityFilter(); renderHotels(); };
-    $('#fCity').onchange = renderHotels;
-    $('#fPrice').oninput = renderHotels;
-    $('#fCuisine').onchange = renderHotels;
-    $('#sortHotels').onchange = renderHotels;
-    $('#btnReset').onclick = ()=>{ $('#fCountry').value=''; updateCityFilter(); $('#fCity').value=''; $('#fPrice').value=''; $('#fCuisine').value=''; renderHotels(); };
-
-    // Hotels actions (delegate)
-    $('#hotels').addEventListener('click', e=>{
-      const idOpen = e.target.getAttribute('data-open');
-      const idAdd = e.target.getAttribute('data-add');
-      if(idOpen) openHotelModal(idOpen);
-      if(idAdd){ const h = DATA.hotels.find(x=>x.id===idAdd); if(h) addToItinerary({type:'hotel', ref:h.id, name:h.name, city:h.city, country:h.country, price:h.price}); }
-    });
-
-    // Explore → view hotels
-    // handled in renderExplore()
-
-    // Routes
-    $('#btnDistance').onclick = calcDistance;
-
-    // Global search button (demo: just jump to Hotels)
-    $('#btnSearch').onclick = ()=>{ switchTab('hotels'); };
-
-    // Itinerary
-    $('#btnClearItinerary').onclick = clearItinerary;
-  }
-
-  // ---------------------------
-  // Init
-  // ---------------------------
-  initFilters();
-  renderExplore();
-  renderHotels();
-  renderItinerary();
-  wireEvents();
-  </script>
+        // Initialize itinerary from localStorage if available
+        let itinerary = JSON.parse(localStorage.getItem('travelItinerary')) || [];
+        
+        // Function to update itinerary display
+        function updateItineraryDisplay() {
+            // In a real application, this would update the UI based on the itinerary array
+            console.log("Itinerary updated:", itinerary);
+        }
+        
+        // Simulate adding a hotel to itinerary
+        document.querySelectorAll('.btn-primary').forEach(button => {
+            if (button.textContent === 'Add to Itinerary') {
+                button.addEventListener('click', function() {
+                    const hotelCard = this.closest('.hotel-card');
+                    const hotelName = hotelCard.querySelector('h3').textContent;
+                    const hotelPrice = hotelCard.querySelector('.price').textContent;
+                    const hotelCity = "Unknown"; // Would normally come from data
+                    
+                    // Add to itinerary
+                    itinerary.push({
+                        type: 'hotel',
+                        name: hotelName,
+                        price: hotelPrice,
+                        city: hotelCity
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('travelItinerary', JSON.stringify(itinerary));
+                    
+                    // Update display
+                    updateItineraryDisplay();
+                    
+                    alert(`${hotelName} added to your itinerary!`);
+                });
+            }
+        });
+        
+        // Initialize the application
+        updateItineraryDisplay();
+    </script>
 </body>
 </html>
